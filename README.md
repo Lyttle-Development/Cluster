@@ -87,9 +87,56 @@ curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scr
 
 ## 🚢 Application & Container Management
 
-Deploying containers, mapping domains, and injecting environment variables is designed to be fast and safe.
+The primary workflow for this cluster is **NAS-Backed Private Applications**: your production apps, secrets, and environment configurations live safely on your encrypted local NAS. You stream them in-memory to the cluster with zero disk footprint on the VPS.
 
-### 1. Fast CLI Deployer (`./scripts/deploy-app.sh`)
+### 1. Deploying Apps from your Encrypted NAS (Primary Workflow)
+Your apps are stored on your local NAS (e.g. `/Volumes/NAS/cluster-apps/<app-name>/app.yaml`), formatted using the [AI Agent Application Specification](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/APP_SPEC_FOR_AGENTS.md).
+
+#### Deploy a Single Application from NAS:
+> 📍 **Run on: Developer PC** (where your NAS is mounted)
+```bash
+./scripts/deploy-from-nas.sh \
+  --source /Volumes/NAS/cluster-apps/ghost-blog \
+  --server <YOUR_SERVER_IP>
+```
+
+#### Deploy / Sync All Applications Across your NAS Fleet:
+> 📍 **Run on: Developer PC** (where your NAS is mounted)
+```bash
+./scripts/deploy-from-nas.sh \
+  --source /Volumes/NAS/cluster-apps \
+  --server <YOUR_SERVER_IP>
+```
+- **Zero Disk Footprint**: Streams manifests directly into Kubernetes RAM over SSH. No plain-text files or secrets ever touch the VPS disk.
+- **Dynamic Routing**: Traefik automatically routes each app's domain (e.g. `blog.cluster.lyttle.dev`) through your Cloudflare wildcard tunnel.
+- **Database Integrated**: Apps connect to your Managed DigitalOcean PostgreSQL 18 via TLS.
+
+---
+
+### 2. Instant Fleet Rebuild (Disaster Recovery in 10 Seconds)
+If you wipe or rebuild your cluster, restore your entire production application fleet with a single command from your workstation:
+> 📍 **Run on: Developer PC** (where your NAS is mounted)
+```bash
+./scripts/deploy-from-nas.sh --source /Volumes/NAS/cluster-apps --server <NEW_SERVER_IP>
+```
+*(Or for public repo apps: `kubectl apply -k apps/`).*
+
+---
+
+### 3. Visual Web Dashboard (Headlamp)
+Replace Portainer with a **stateless, secure Kubernetes dashboard** pre-installed during server bootstrap:
+> 📍 **Run on: Developer PC or Server VPS** (requires cluster access)
+```bash
+# Get your admin login token
+./scripts/get-dashboard-token.sh
+```
+- Open **`https://dashboard.cluster.lyttle.dev`** and log in with your token.
+- Inspect container metrics, stream logs, open in-container interactive terminals, and restart pods.
+
+---
+
+### 4. Fast CLI Manifest Scaffolder (`./scripts/deploy-app.sh`)
+Helper script to quickly scaffold a new application bundle or test deployments:
 > 📍 **Run on: Developer PC or Server VPS** (inside the `Cluster` repository)
 ```bash
 ./scripts/deploy-app.sh \
@@ -99,35 +146,8 @@ Deploying containers, mapping domains, and injecting environment variables is de
   --port 80 \
   --env NODE_ENV=production
 ```
-- Automatically generates declarative Kubernetes manifests in `apps/<name>/app.yaml`.
-- Registers the application in `apps/kustomization.yaml`.
-- Traefik automatically routes `https://my-service.cluster.lyttle.dev` through your Cloudflare wildcard tunnel.
+- Generates `apps/<name>/app.yaml` following the standard bundle format.
 
-### 2. Visual Web Dashboard (Headlamp)
-> 📍 **Run on: Developer PC or Server VPS** (requires cluster access)
-```bash
-# Deploy Headlamp dashboard
-kubectl apply -f manifests/dashboard/headlamp.yaml
-
-# Get your admin login token
-./scripts/get-dashboard-token.sh
-```
-- Open `https://dashboard.cluster.lyttle.dev` and log in with your token.
-- Inspect container metrics, stream logs, open in-container terminals, and restart pods.
-
-### 3. Instant Fleet Rebuild (All Containers & Routes in 10 Seconds)
-> 📍 **Run on: Developer PC or Server VPS** (inside the `Cluster` repository)
-```bash
-kubectl apply -k apps/
-```
-
-### 4. Deploying Private / NAS-Backed Apps (Zero VPS Disk Footprint)
-> 📍 **Run on: Developer PC** (where your NAS is mounted; streams directly to VPS over SSH)
-```bash
-./scripts/deploy-from-nas.sh \
-  --source /Volumes/NAS/cluster-apps \
-  --server <YOUR_SERVER_IP>
-```
 
 
 

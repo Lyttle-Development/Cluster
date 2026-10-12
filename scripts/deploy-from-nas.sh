@@ -123,16 +123,21 @@ fi
 info "Streaming manifests from ${SOURCE_PATH} directly into remote kubectl stdin..."
 
 if [[ -d "${SOURCE_PATH}" ]]; then
-    # Archive directory into tar stream and unpack directly into kubectl apply on server
-    tar -czf - -C "${SOURCE_PATH}" . | \
-        ssh -p "${SSH_PORT}" "${SSH_USER}@${SERVER_HOST}" \
-        'tar -xzf - -O | sudo /usr/local/bin/kubectl apply -f -'
+    info "Collecting all .yaml manifests in ${SOURCE_PATH}..."
+    (
+        while IFS= read -r -d '' file; do
+            echo "---"
+            cat "${file}"
+            echo ""
+        done < <(find "${SOURCE_PATH}" -type f \( -name "*.yaml" -o -name "*.yml" \) -print0)
+    ) | ssh -p "${SSH_PORT}" "${SSH_USER}@${SERVER_HOST}" 'sudo /usr/local/bin/kubectl apply -f -'
 else
     # Stream single file directly
     cat "${SOURCE_PATH}" | \
         ssh -p "${SSH_PORT}" "${SSH_USER}@${SERVER_HOST}" \
         'sudo /usr/local/bin/kubectl apply -f -'
 fi
+
 
 success "=========================================================================="
 success " Manifests and secrets successfully deployed to the cluster!"
