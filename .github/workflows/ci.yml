@@ -1,0 +1,44 @@
+name: CI Validation & Linting
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-scripts:
+    name: Lint & Validate Shell Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update -y && sudo apt-get install -y shellcheck
+
+      - name: Check bash syntax with bash -n
+        run: |
+          for script in scripts/*.sh; do
+            echo "Checking syntax: $script"
+            bash -n "$script"
+          done
+
+      - name: Run shellcheck
+        run: |
+          shellcheck -x scripts/*.sh
+
+  validate-manifests:
+    name: Validate Kubernetes Manifests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v2
+
+      - name: Build and Validate apps/ Kustomization
+        run: |
+          kustomize build apps/ > /dev/null
+          echo "apps/ kustomization is valid!"
