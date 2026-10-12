@@ -47,8 +47,13 @@ awk '$2 ~ /^\/(var\/lib\/rancher|var\/lib\/kubelet|run\/k3s|run\/netns)/ {print 
 done
 
 # 4. Remove directories and data
-info "Purging cluster directories..."
+info "Purging cluster directories and services..."
+systemctl disable --now cluster-sync.timer cluster-sync.service 2>/dev/null || true
+rm -f /etc/systemd/system/cluster-sync.* || true
+systemctl daemon-reload || true
+
 rm -rf /etc/rancher \
+
        /var/lib/rancher \
        /var/lib/kubelet \
        /run/k3s \

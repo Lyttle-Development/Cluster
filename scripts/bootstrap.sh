@@ -219,10 +219,13 @@ if [[ "${ROLE}" == "server" ]]; then
         bash "${SCRIPT_DIR}/06-deploy-dashboard.sh"
     fi
 elif [[ "${ROLE}" == "agent" ]]; then
-
     bash "${SCRIPT_DIR}/04-install-k3s-agent.sh"
 fi
+
+# Step 07: Automated Node Sync & Reconciliation (runs on all nodes)
+bash "${SCRIPT_DIR}/07-setup-auto-sync.sh"
 
 success "=========================================================================="
 success " Bootstrap complete! Node is secure, hardened, and active."
 success "=========================================================================="
+
