@@ -138,8 +138,9 @@ If your entire cluster is wiped, your disaster recovery command is:
 1. **Bootstrap clean control plane node**:
    > 📍 **Run on: Fresh Server VPS** (via SSH or OVH console as `root`)
    ```bash
-   curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- --role server ...
+   curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- --role server ...
    ```
+
 
 2. **Re-apply all containers, environment variables & domains**:
    > 📍 **Run on: Developer PC or Server VPS** (inside the `Cluster` repository)

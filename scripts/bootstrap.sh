@@ -84,17 +84,18 @@ Options:
 
 Examples:
   # One-Liner Install Server Node:
-  curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \\
+  curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- \\
     --role server --datastore-endpoint "postgres://user:pass@host:25060/db?sslmode=require"
 
   # One-Liner Install Agent Node:
-  curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \\
+  curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- \\
     --role agent --server-url "https://10.0.0.1:6443" --token "mysecrettoken"
 
   # One-Liner Reset Node:
-  curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- --reset
+  curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- --reset
 EOF
     exit 0
+
 
 }
 

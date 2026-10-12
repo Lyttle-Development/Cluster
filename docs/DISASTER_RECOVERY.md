@@ -41,7 +41,7 @@ sudo ./scripts/99-reset-node.sh --force
 ### Step 3: Re-provision as a Worker Node
 > 📍 **Run on: Clean Worker VPS** (via SSH or OVH console as `root`)
 ```bash
-curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
+curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- \
   --role agent \
   --server-url https://<SERVER_IP>:6443 \
   --token <K3S_NODE_TOKEN>
@@ -64,7 +64,7 @@ In the DigitalOcean console:
 ### Step 3: Bootstrap a Fresh Server Node
 > 📍 **Run on: Fresh Server VPS** (via SSH or OVH console as `root`)
 ```bash
-curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
+curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- \
   --role server \
   --datastore-endpoint "postgres://k3s_user:NEW_PASSWORD@db-postgresql-nyc1-do-user-123.b.db.ondigitalocean.com:25060/k3s_cluster?sslmode=require" \
   --token <NEW_OR_EXISTING_K3S_NODE_TOKEN> \
@@ -86,7 +86,7 @@ curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
 3. Boot Server Node 1:
    > 📍 **Run on: Fresh Server VPS** (via SSH or OVH console as `root`)
    ```bash
-   curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
+   curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- \
      --role server \
      --datastore-endpoint "<DO_PG_URL>" \
      --token "<CLUSTER_TOKEN>" \
@@ -95,7 +95,7 @@ curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
 4. Boot Agent Nodes:
    > 📍 **Run on: Each Fresh Agent VPS** (via SSH or OVH console as `root`)
    ```bash
-   curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
+   curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- \
      --role agent \
      --server-url "https://<SERVER_IP>:6443" \
      --token "<CLUSTER_TOKEN>"

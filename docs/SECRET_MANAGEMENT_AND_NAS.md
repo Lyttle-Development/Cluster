@@ -71,11 +71,12 @@ If your cluster is completely destroyed or wiped:
 1. **Provision clean control plane node**:
    > 📍 **Run on: Fresh Server VPS** (via SSH or OVH console as `root`)
    ```bash
-   curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
+   curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- \
      --role server \
      --datastore-endpoint "postgres://k3s_user:SECRET@your-do-db:25060/k3s_cluster?sslmode=require" \
      --cf-token "YOUR_CLOUDFLARE_TUNNEL_TOKEN"
    ```
+
 
 2. **Restore NAS-backed private apps & secrets**:
    > 📍 **Run on: Developer PC / Workstation** (where your encrypted NAS is mounted)

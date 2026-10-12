@@ -60,7 +60,7 @@ You can provision nodes in two ways:
 #### 1. Provision Server Node directly on host:
 > 📍 **Run on: Fresh Server VPS** (via SSH or OVH console as `root` / `sudo`)
 ```bash
-curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
+curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- \
   --role server \
   --datastore-endpoint "postgres://k3s_user:SECRET_PASSWORD@db-do-host:25060/k3s_cluster?sslmode=require" \
   --cf-token "YOUR_CLOUDFLARE_TUNNEL_TOKEN"
@@ -69,7 +69,7 @@ curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
 #### 2. Provision Worker Node directly on host:
 > 📍 **Run on: Additional Worker VPS** (via SSH or OVH console as `root` / `sudo`)
 ```bash
-curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
+curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- \
   --role agent \
   --server-url "https://<SERVER_IP>:6443" \
   --token "<CLUSTER_NODE_TOKEN>"
@@ -78,8 +78,9 @@ curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
 #### 3. Reset / Decontaminate a Node:
 > 📍 **Run on: Target VPS Node to Wipe** (via SSH or OVH console as `root` / `sudo`)
 ```bash
-curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- --reset
+curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- --reset
 ```
+
 
 
 ---
@@ -191,8 +192,8 @@ This immediately loads:
 - [**Disaster Recovery Runbook**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/DISASTER_RECOVERY.md): Rapid response guides for node compromise, server rebuilds, and total fleet recovery.
 - [**Networking & Ingress Guide**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/NETWORKING_AND_INGRESS.md): Cloudflare Tunnel integration, WireGuard overlay, and firewall policies.
 - [**Storage Strategy**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/STORAGE_STRATEGY.md): PostgreSQL 18 database partitioning, S3 object storage, and ephemeral local paths.
-- [**Cloudflare DNS & Routing Setup**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/CLOUDFLARE_SETUP.md): DNS records, redirect rules, and Worker code for `install.cluster.lyttle.dev`.
 - [**Automated Updates & GitOps**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/AUTOMATED_UPDATES_AND_GITOPS.md): Pull-based self-reconciliation, systemd sync timer, and GitHub Actions CI.
+
 
 
 
