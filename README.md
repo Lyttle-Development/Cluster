@@ -33,7 +33,7 @@ This repository is built to replace fragile Docker Swarm / Portainer setups with
 > *(The direct GitHub URL `raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh` also works as a direct fallback).*
 
 ### 1. Provision a Server Node (Control Plane)
-Run on a fresh Debian 13 VPS:
+> 📍 **Run on: Fresh Server VPS** (via SSH or OVH console as `root` / `sudo`)
 ```bash
 curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
   --role server \
@@ -42,7 +42,7 @@ curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
 ```
 
 ### 2. Provision an Agent Node (Worker)
-Run on any additional Debian 13 VPS to expand compute capacity:
+> 📍 **Run on: Additional Worker VPS** (via SSH or OVH console as `root` / `sudo`)
 ```bash
 curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
   --role agent \
@@ -51,7 +51,7 @@ curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
 ```
 
 ### 3. Reset / Decontaminate a Node
-To cleanly remove K3s, container storage, and network interfaces back to baseline:
+> 📍 **Run on: Target VPS Node to Wipe** (via SSH or OVH console as `root` / `sudo`)
 ```bash
 curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- --reset
 ```
@@ -63,7 +63,7 @@ curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- --reset
 Deploying containers, mapping domains, and injecting environment variables is designed to be fast and safe.
 
 ### 1. Fast CLI Deployer (`./scripts/deploy-app.sh`)
-Deploy a container with coupled domain and environment variables in seconds:
+> 📍 **Run on: Developer PC or Server VPS** (inside the `Cluster` repository)
 ```bash
 ./scripts/deploy-app.sh \
   --name my-service \
@@ -77,7 +77,7 @@ Deploy a container with coupled domain and environment variables in seconds:
 - Traefik automatically routes `https://my-service.cluster.lyttle.dev` through your Cloudflare wildcard tunnel.
 
 ### 2. Visual Web Dashboard (Headlamp)
-Replace Portainer with a **stateless, modern Kubernetes dashboard**:
+> 📍 **Run on: Developer PC or Server VPS** (requires cluster access)
 ```bash
 # Deploy Headlamp dashboard
 kubectl apply -f manifests/dashboard/headlamp.yaml
@@ -89,18 +89,19 @@ kubectl apply -f manifests/dashboard/headlamp.yaml
 - Inspect container metrics, stream logs, open in-container terminals, and restart pods.
 
 ### 3. Instant Fleet Rebuild (All Containers & Routes in 10 Seconds)
-If you reset or rebuild your cluster, restore your entire public application fleet with one command:
+> 📍 **Run on: Developer PC or Server VPS** (inside the `Cluster` repository)
 ```bash
 kubectl apply -k apps/
 ```
 
 ### 4. Deploying Private / NAS-Backed Apps (Zero VPS Disk Footprint)
-For production apps and secrets stored on your encrypted NAS, stream them directly into Kubernetes RAM over SSH without saving unencrypted files to the VPS disk:
+> 📍 **Run on: Developer PC** (where your NAS is mounted; streams directly to VPS over SSH)
 ```bash
 ./scripts/deploy-from-nas.sh \
   --source /Volumes/NAS/cluster-apps \
   --server <YOUR_SERVER_IP>
 ```
+
 
 
 
@@ -133,6 +134,7 @@ Instead of a monolithic black-box, each step is an independent script inside [`s
 
 To manage the cluster from your Mac or workstation without polluting system packages:
 
+> 📍 **Run on: Developer PC / Workstation** (Mac or Linux)
 ```bash
 # Clone the repository
 git clone https://github.com/Lyttle-Development/Cluster.git
@@ -141,6 +143,7 @@ cd Cluster
 # Enter the isolated Nix environment
 nix develop
 ```
+
 
 This immediately loads:
 - `kubectl`

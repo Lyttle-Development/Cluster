@@ -19,7 +19,7 @@ A complete rebuild of a compromised node or the entire cluster takes **under 5 m
 ## Scenario 1: A Worker Node is Suspect or Compromised
 
 ### Step 1: Drain and Delete from Cluster
-Run from your administrator machine (using the Nix devshell):
+> 📍 **Run on: Developer PC / Workstation** (using local `kubectl` inside `nix develop`)
 ```bash
 # Mark node unschedulable and evict running pods
 kubectl drain <node-name> --delete-emptydir-data --ignore-daemonsets --force
@@ -29,7 +29,7 @@ kubectl delete node <node-name>
 ```
 
 ### Step 2: Nuke the Node
-On the compromised VPS:
+> 📍 **Run on: Compromised Worker VPS** (via SSH or OVH web console as `root`)
 ```bash
 # Option A: Soft reset (Uninstall K3s, purge firewall, remove network interfaces)
 sudo ./scripts/99-reset-node.sh --force
@@ -39,11 +39,11 @@ sudo ./scripts/99-reset-node.sh --force
 ```
 
 ### Step 3: Re-provision as a Worker Node
-Run the single bootstrap command on the clean VPS:
+> 📍 **Run on: Clean Worker VPS** (via SSH or OVH console as `root`)
 ```bash
-sudo ./scripts/bootstrap.sh \
+curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
   --role agent \
-  --server-url https://<SERVER_PRIVATE_OR_PUBLIC_IP>:6443 \
+  --server-url https://<SERVER_IP>:6443 \
   --token <K3S_NODE_TOKEN>
 ```
 The node automatically rejoins the WireGuard overlay network and begins receiving workloads.
@@ -62,9 +62,9 @@ In the DigitalOcean console:
 2. Ensure SSL mode is set to `require` (`sslmode=require`).
 
 ### Step 3: Bootstrap a Fresh Server Node
-On the fresh Debian 13 VPS, run:
+> 📍 **Run on: Fresh Server VPS** (via SSH or OVH console as `root`)
 ```bash
-sudo ./scripts/bootstrap.sh \
+curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
   --role server \
   --datastore-endpoint "postgres://k3s_user:NEW_PASSWORD@db-postgresql-nyc1-do-user-123.b.db.ondigitalocean.com:25060/k3s_cluster?sslmode=require" \
   --token <NEW_OR_EXISTING_K3S_NODE_TOKEN> \
@@ -84,19 +84,30 @@ sudo ./scripts/bootstrap.sh \
 1. Re-image all VPS instances in OVH to fresh Debian 13.
 2. In DigitalOcean, create a point-in-time restore of the PostgreSQL database if data tampering is suspected.
 3. Boot Server Node 1:
+   > 📍 **Run on: Fresh Server VPS** (via SSH or OVH console as `root`)
    ```bash
-   sudo ./scripts/bootstrap.sh --role server \
+   curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
+     --role server \
      --datastore-endpoint "<DO_PG_URL>" \
      --token "<CLUSTER_TOKEN>" \
      --cf-token "<CLOUDFLARE_TUNNEL_TOKEN>"
    ```
 4. Boot Agent Nodes:
+   > 📍 **Run on: Each Fresh Agent VPS** (via SSH or OVH console as `root`)
    ```bash
-   sudo ./scripts/bootstrap.sh --role agent \
+   curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
+     --role agent \
      --server-url "https://<SERVER_IP>:6443" \
      --token "<CLUSTER_TOKEN>"
    ```
 5. Apply cluster workloads from this Git repository:
+   > 📍 **Run on: Developer PC or Server VPS** (inside the `Cluster` repository)
    ```bash
-   kubectl apply -k manifests/
+   kubectl apply -k apps/
    ```
+6. Restore NAS-backed private apps and secrets (if applicable):
+   > 📍 **Run on: Developer PC** (where your encrypted NAS is mounted)
+   ```bash
+   ./scripts/deploy-from-nas.sh --source /Volumes/NAS/cluster-apps --server <SERVER_IP>
+   ```
+

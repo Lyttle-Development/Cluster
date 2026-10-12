@@ -69,6 +69,7 @@ We provide two workflows designed to maximize deployment speed while guaranteein
 
 To deploy a new container in seconds, run:
 
+> 📍 **Run on: Developer PC or Server VPS** (inside the `Cluster` repository)
 ```bash
 # Non-interactive one-liner:
 ./scripts/deploy-app.sh \
@@ -107,6 +108,7 @@ To deploy a new container in seconds, run:
    - Restart pods or edit deployments on the fly.
 
 ### Deploying the Dashboard:
+> 📍 **Run on: Developer PC or Server VPS** (requires cluster access)
 ```bash
 kubectl apply -f manifests/dashboard/headlamp.yaml
 
@@ -133,12 +135,17 @@ apps/
 
 If your entire cluster is wiped, your disaster recovery command is:
 
-```bash
-# 1. Bootstrap the cluster on fresh VPS (takes 2 minutes)
-curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- --role server ...
+1. **Bootstrap clean control plane node**:
+   > 📍 **Run on: Fresh Server VPS** (via SSH or OVH console as `root`)
+   ```bash
+   curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- --role server ...
+   ```
 
-# 2. Re-apply all containers, environment variables & domains (takes 10 seconds)
-kubectl apply -k apps/
-```
+2. **Re-apply all containers, environment variables & domains**:
+   > 📍 **Run on: Developer PC or Server VPS** (inside the `Cluster` repository)
+   ```bash
+   kubectl apply -k apps/
+   ```
 
 **Every application, container, environment variable, ingress rule, and dashboard is immediately back online.**
+

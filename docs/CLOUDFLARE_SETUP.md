@@ -115,10 +115,12 @@ The worker script is provided in this repository at [`cloudflare/install-worker.
 
 Once configured, verify from your local terminal:
 
+> 📍 **Run on: Developer PC / Workstation**
 ```bash
 # Test with curl (should output the top lines of bootstrap.sh)
 curl -fsSL https://install.cluster.lyttle.dev | head -n 10
 ```
+
 
 Expected output:
 ```text

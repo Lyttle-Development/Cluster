@@ -43,6 +43,7 @@ We use an **in-memory standard input pipe over SSH**:
 
 From your Mac / dev workstation (inside the `nix develop` shell or terminal):
 
+> 📍 **Run on: Developer PC / Workstation** (where your encrypted NAS is mounted)
 ```bash
 # Stream an entire directory of apps and secrets from your NAS:
 ./scripts/deploy-from-nas.sh \
@@ -67,16 +68,20 @@ From your Mac / dev workstation (inside the `nix develop` shell or terminal):
 
 If your cluster is completely destroyed or wiped:
 
-```bash
-# Step 1: Provision the clean control plane node (2 minutes)
-curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
-  --role server \
-  --datastore-endpoint "postgres://k3s_user:SECRET@your-do-db:25060/k3s_cluster?sslmode=require" \
-  --cf-token "YOUR_CLOUDFLARE_TUNNEL_TOKEN"
+1. **Provision clean control plane node**:
+   > 📍 **Run on: Fresh Server VPS** (via SSH or OVH console as `root`)
+   ```bash
+   curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
+     --role server \
+     --datastore-endpoint "postgres://k3s_user:SECRET@your-do-db:25060/k3s_cluster?sslmode=require" \
+     --cf-token "YOUR_CLOUDFLARE_TUNNEL_TOKEN"
+   ```
 
-# Step 2: Restore your NAS-backed private apps & secrets (10 seconds)
-./scripts/deploy-from-nas.sh --source /Volumes/NAS/ClusterApps --server <NEW_VPS_IP>
-```
+2. **Restore NAS-backed private apps & secrets**:
+   > 📍 **Run on: Developer PC / Workstation** (where your encrypted NAS is mounted)
+   ```bash
+   ./scripts/deploy-from-nas.sh --source /Volumes/NAS/ClusterApps --server <NEW_VPS_IP>
+   ```
 
 Within seconds, all production containers, environment variables, and private credentials are back online.
 
@@ -87,10 +92,12 @@ Within seconds, all production containers, environment variables, and private cr
 If you eventually want your private secrets stored directly in this Git repository alongside your code without relying on a manual NAS step, you can use **Mozilla SOPS with Age** (already included in this repository's `flake.nix`):
 
 ### How SOPS Works:
-1. You generate an `age` keypair once:
+1. Generate an `age` keypair once:
+   > 📍 **Run on: Developer PC / Workstation**
    ```bash
    age-keygen -o ~/.config/sops/age/keys.txt
    ```
+
 2. Your **Public Key** is stored in `.sops.yaml` in the repo (safe to commit to GitHub).
 3. Secrets in `apps/<name>/secret.enc.yaml` have their values encrypted:
    ```yaml
