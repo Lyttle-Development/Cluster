@@ -89,10 +89,19 @@ kubectl apply -f manifests/dashboard/headlamp.yaml
 - Inspect container metrics, stream logs, open in-container terminals, and restart pods.
 
 ### 3. Instant Fleet Rebuild (All Containers & Routes in 10 Seconds)
-If you reset or rebuild your cluster, restore your entire application fleet with one command:
+If you reset or rebuild your cluster, restore your entire public application fleet with one command:
 ```bash
 kubectl apply -k apps/
 ```
+
+### 4. Deploying Private / NAS-Backed Apps (Zero VPS Disk Footprint)
+For production apps and secrets stored on your encrypted NAS, stream them directly into Kubernetes RAM over SSH without saving unencrypted files to the VPS disk:
+```bash
+./scripts/deploy-from-nas.sh \
+  --source /Volumes/NAS/cluster-apps \
+  --server <YOUR_SERVER_IP>
+```
+
 
 
 
@@ -113,10 +122,10 @@ Instead of a monolithic black-box, each step is an independent script inside [`s
 | [`scripts/07-setup-auto-sync.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/07-setup-auto-sync.sh) | Installs systemd timer and service to run `sync-node.sh` periodically (default: 30 min). |
 | [`scripts/sync-node.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/sync-node.sh) | Pulls Git updates, reconciles applications, and reapplies firewall/sysctl baseline. |
 | [`scripts/deploy-app.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/deploy-app.sh) | Fast interactive/CLI container deployer: configures image, envs, domain, and Traefik ingress in `apps/`. |
+| [`scripts/deploy-from-nas.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/deploy-from-nas.sh) | Streams private NAS manifests/secrets directly into Kubernetes RAM (zero disk trace on VPS). |
 | [`scripts/get-dashboard-token.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/get-dashboard-token.sh) | Generates admin authentication token for the Headlamp web dashboard. |
 | [`scripts/99-reset-node.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/99-reset-node.sh) | Complete node wipe: uninstalls K3s, unmounts container storage, removes virtual interfaces, resets firewall safely. |
 | [`scripts/bootstrap.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/bootstrap.sh) | Unified master orchestrator supporting both CLI flags and interactive prompts. |
-
 
 ---
 
@@ -146,12 +155,14 @@ This immediately loads:
 ## 📚 Documentation Deep Dives
 
 - [**Application Management & Dashboard**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/APP_MANAGEMENT_AND_DASHBOARD.md): Rapid container deployment, wildcard HTTP routing, and Headlamp dashboard.
+- [**Secret Management & NAS Deployments**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/SECRET_MANAGEMENT_AND_NAS.md): In-memory streaming, zero-disk secrets, and Mozilla SOPS alternative.
 - [**Architecture & Security Blueprint**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/ARCHITECTURE.md): Threat model, defense-in-depth, and control plane decoupling.
 - [**Disaster Recovery Runbook**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/DISASTER_RECOVERY.md): Rapid response guides for node compromise, server rebuilds, and total fleet recovery.
 - [**Networking & Ingress Guide**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/NETWORKING_AND_INGRESS.md): Cloudflare Tunnel integration, WireGuard overlay, and firewall policies.
 - [**Storage Strategy**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/STORAGE_STRATEGY.md): PostgreSQL 18 database partitioning, S3 object storage, and ephemeral local paths.
 - [**Cloudflare DNS & Routing Setup**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/CLOUDFLARE_SETUP.md): DNS records, redirect rules, and Worker code for `install.cluster.lyttle.dev`.
 - [**Automated Updates & GitOps**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/AUTOMATED_UPDATES_AND_GITOPS.md): Pull-based self-reconciliation, systemd sync timer, and GitHub Actions CI.
+
 
 
 
