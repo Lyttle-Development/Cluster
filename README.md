@@ -25,6 +25,23 @@ This repository is built to replace fragile Docker Swarm / Portainer setups with
 
 ---
 
+## 📚 Documentation Directory & Navigation Hub
+
+Use this index to quickly locate documentation, understand which approach is **(Recommended)**, and find what you need based on what you are trying to do:
+
+| Document | Recommendation Status | What You Will Find There | When to Use |
+| :--- | :--- | :--- | :--- |
+| [**`docs/APP_SPEC_FOR_AGENTS.md`**](docs/APP_SPEC_FOR_AGENTS.md) | ⭐ **Recommended (Golden Standard)** | AI agent system prompt & rules to generate single-file `app.yaml` bundles (Traefik Ingress, non-root security context, Managed PostgreSQL TLS, resource limits). | Feed to Claude, ChatGPT, or coding agents when generating new application deployments for your NAS. |
+| [**`docs/SECRET_MANAGEMENT_AND_NAS.md`**](docs/SECRET_MANAGEMENT_AND_NAS.md) | ⭐ **Recommended (Primary Fleet Flow)** | Explains in-memory SSH streaming (`deploy-from-nas.sh`), keeping secrets off the VPS filesystem, and the Mozilla SOPS + Age GitOps alternative. | Setting up or updating private production credentials and understanding the zero-disk footprint architecture. |
+| [**`docs/APP_MANAGEMENT_AND_DASHBOARD.md`**](docs/APP_MANAGEMENT_AND_DASHBOARD.md) | ⭐ **Recommended (App Lifecycle)** | Comprehensive guide for the 3 deployment workflows: NAS Deployer (Primary), Headlamp Web Dashboard (Portainer replacement), and CLI scaffolder. Details dynamic wildcard HTTP routing. | Deploying apps, streaming logs, opening live container terminals, and managing routes. |
+| [**`docs/DISASTER_RECOVERY.md`**](docs/DISASTER_RECOVERY.md) | ⭐ **Recommended (Incident Runbook)** | Rapid step-by-step recovery playbooks (<5 min rebuild): individual worker node compromise, server control-plane rebuild, and total fleet loss. | An active security breach, node failure, or scheduled cluster wipe and re-provisioning. |
+| [**`docs/STORAGE_STRATEGY.md`**](docs/STORAGE_STRATEGY.md) | ⭐ **Recommended (Storage Pattern)** | Explains the stateless cattle architecture: Managed PostgreSQL 18 for databases, Cloudflare R2 / S3 for files/blobs, and ephemeral local caching. | Planning application state, avoiding stateful database pods on VPS disks, or configuring S3 uploads. |
+| [**`docs/ARCHITECTURE.md`**](docs/ARCHITECTURE.md) | 📖 **Architecture Blueprint** | Detailed threat modeling, defense-in-depth principles, Swarm vs K3s comparison, and external Kine PostgreSQL datastore architecture. | Understanding why the cluster is designed this way and evaluating security guarantees. |
+| [**`docs/NETWORKING_AND_INGRESS.md`**](docs/NETWORKING_AND_INGRESS.md) | 📖 **Network Reference** | Zero-open-port ingress architecture with Cloudflare Tunnel (`cloudflared`), Traefik ingress controller, WireGuard-native overlay mesh, and UFW firewall rules. | Network debugging, configuring DNS/tunnels, or auditing open ports. |
+| [**`docs/AUTOMATED_UPDATES_AND_GITOPS.md`**](docs/AUTOMATED_UPDATES_AND_GITOPS.md) | ⚙️ **Automation & GitOps** | Pull-based self-healing via `cluster-sync.timer` (systemd periodic pull every 30m), GitHub Actions CI linting, and automated Dependabot updates. | Configuring automated updates, maintaining cluster parity, or customizing the sync timer. |
+
+---
+
 ## ⚡ Quickstart: Provisioning Workflows
 
 You can provision nodes in two ways:
@@ -81,8 +98,6 @@ curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scr
 curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- --reset
 ```
 
-
-
 ---
 
 ## 🚢 Application & Container Management
@@ -90,7 +105,7 @@ curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scr
 The primary workflow for this cluster is **NAS-Backed Private Applications**: your production apps, secrets, and environment configurations live safely on your encrypted local NAS. You stream them in-memory to the cluster with zero disk footprint on the VPS.
 
 ### 1. Deploying Apps from your Encrypted NAS (Primary Workflow)
-Your apps are stored on your local NAS (e.g. `/Volumes/NAS/cluster-apps/<app-name>/app.yaml`), formatted using the [AI Agent Application Specification](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/APP_SPEC_FOR_AGENTS.md).
+Your apps are stored on your local NAS (e.g. `/Volumes/NAS/cluster-apps/<app-name>/app.yaml`), formatted using the [AI Agent Application Specification](docs/APP_SPEC_FOR_AGENTS.md).
 
 #### Deploy a Single Application from NAS:
 > 📍 **Run on: Developer PC** (where your NAS is mounted)
@@ -148,34 +163,28 @@ Helper script to quickly scaffold a new application bundle or test deployments:
 ```
 - Generates `apps/<name>/app.yaml` following the standard bundle format.
 
-
-
-
-
-
 ---
 
 ## 🧩 KISS Modular Scripts
 
-Instead of a monolithic black-box, each step is an independent script inside [`scripts/`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts):
+Instead of a monolithic black-box, each step is an independent script inside [`scripts/`](scripts):
 
 | Script | Purpose |
 | :--- | :--- |
-| [`scripts/01-system-prep.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/01-system-prep.sh) | Base packages, disable swap, kernel modules (`overlay`, `br_netfilter`, `wireguard`), sysctl hardening, `unattended-upgrades`, `fail2ban`. |
-| [`scripts/02-firewall-hardening.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/02-firewall-hardening.sh) | UFW setup: default drop inbound, rate-limited SSH, allows WireGuard 51820/udp & K3s 6443/tcp. **Keeps 80 & 443 closed to public**. |
-| [`scripts/03-install-k3s-server.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/03-install-k3s-server.sh) | K3s control-plane with external PostgreSQL datastore (Kine), native WireGuard flannel, and generated credentials. |
-| [`scripts/04-install-k3s-agent.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/04-install-k3s-agent.sh) | Joins worker node to the K3s cluster. |
-| [`scripts/05-deploy-cloudflared.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/05-deploy-cloudflared.sh) | Deploys Cloudflare Tunnel agent inside cluster (least-privilege non-root container with read-only rootfs). |
-| [`scripts/06-deploy-dashboard.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/06-deploy-dashboard.sh) | Deploys Headlamp web dashboard, generates token, and saves it to `/etc/headlamp-admin-token.txt`. |
-| [`scripts/07-setup-auto-sync.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/07-setup-auto-sync.sh) | Installs systemd timer and service to run `sync-node.sh` periodically (default: 30 min). |
-| [`scripts/sync-node.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/sync-node.sh) | Pulls Git updates, reconciles applications, and reapplies firewall/sysctl baseline. |
-| [`scripts/deploy-app.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/deploy-app.sh) | Fast interactive/CLI container deployer: configures image, envs, domain, and Traefik ingress in `apps/`. |
-| [`scripts/deploy-from-nas.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/deploy-from-nas.sh) | Streams private NAS manifests/secrets directly into Kubernetes RAM (zero disk trace on VPS). |
-| [`scripts/get-dashboard-token.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/get-dashboard-token.sh) | Generates admin authentication token for the Headlamp web dashboard. |
-| [`scripts/99-reset-node.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/99-reset-node.sh) | Complete node wipe: uninstalls K3s, unmounts container storage, removes virtual interfaces, resets firewall safely. |
-| [`scripts/provision-node.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/provision-node.sh) | Orchestrates remote VPS setup from Developer PC over SSH: handles reboots, user migration, and kubeconfig sync. |
-| [`scripts/bootstrap.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/bootstrap.sh) | Unified master orchestrator supporting both local host runs and `--target <vps-ip>` remote runs. |
-
+| [`scripts/01-system-prep.sh`](scripts/01-system-prep.sh) | Base packages, disable swap, kernel modules (`overlay`, `br_netfilter`, `wireguard`), sysctl hardening, `unattended-upgrades`, `fail2ban`. |
+| [`scripts/02-firewall-hardening.sh`](scripts/02-firewall-hardening.sh) | UFW setup: default drop inbound, rate-limited SSH, allows WireGuard 51820/udp & K3s 6443/tcp. **Keeps 80 & 443 closed to public**. |
+| [`scripts/03-install-k3s-server.sh`](scripts/03-install-k3s-server.sh) | K3s control-plane with external PostgreSQL datastore (Kine), native WireGuard flannel, and generated credentials. |
+| [`scripts/04-install-k3s-agent.sh`](scripts/04-install-k3s-agent.sh) | Joins worker node to the K3s cluster. |
+| [`scripts/05-deploy-cloudflared.sh`](scripts/05-deploy-cloudflared.sh) | Deploys Cloudflare Tunnel agent inside cluster (least-privilege non-root container with read-only rootfs). |
+| [`scripts/06-deploy-dashboard.sh`](scripts/06-deploy-dashboard.sh) | Deploys Headlamp web dashboard, generates token, and saves it to `/etc/headlamp-admin-token.txt`. |
+| [`scripts/07-setup-auto-sync.sh`](scripts/07-setup-auto-sync.sh) | Installs systemd timer and service to run `sync-node.sh` periodically (default: 30 min). |
+| [`scripts/sync-node.sh`](scripts/sync-node.sh) | Pulls Git updates, reconciles applications, and reapplies firewall/sysctl baseline. |
+| [`scripts/deploy-app.sh`](scripts/deploy-app.sh) | Fast interactive/CLI container deployer: configures image, envs, domain, and Traefik ingress in `apps/`. |
+| [`scripts/deploy-from-nas.sh`](scripts/deploy-from-nas.sh) | Streams private NAS manifests/secrets directly into Kubernetes RAM (zero disk trace on VPS). |
+| [`scripts/get-dashboard-token.sh`](scripts/get-dashboard-token.sh) | Generates admin authentication token for the Headlamp web dashboard. |
+| [`scripts/99-reset-node.sh`](scripts/99-reset-node.sh) | Complete node wipe: uninstalls K3s, unmounts container storage, removes virtual interfaces, resets firewall safely. |
+| [`scripts/provision-node.sh`](scripts/provision-node.sh) | Orchestrates remote VPS setup from Developer PC over SSH: handles reboots, user migration, and kubeconfig sync. |
+| [`scripts/bootstrap.sh`](scripts/bootstrap.sh) | Unified master orchestrator supporting both local host runs and `--target <vps-ip>` remote runs. |
 
 ---
 
@@ -193,7 +202,6 @@ cd Cluster
 nix develop
 ```
 
-
 This immediately loads:
 - `kubectl`
 - `helm`
@@ -204,22 +212,29 @@ This immediately loads:
 
 ---
 
-## 📚 Documentation Deep Dives
+## 📖 Documentation Deep Dives & Topic Guides
 
-- [**Application Management & Dashboard**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/APP_MANAGEMENT_AND_DASHBOARD.md): Rapid container deployment, wildcard HTTP routing, and Headlamp dashboard.
-- [**Secret Management & NAS Deployments**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/SECRET_MANAGEMENT_AND_NAS.md): In-memory streaming, zero-disk secrets, and Mozilla SOPS alternative.
-- [**Architecture & Security Blueprint**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/ARCHITECTURE.md): Threat model, defense-in-depth, and control plane decoupling.
-- [**Disaster Recovery Runbook**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/DISASTER_RECOVERY.md): Rapid response guides for node compromise, server rebuilds, and total fleet recovery.
-- [**Networking & Ingress Guide**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/NETWORKING_AND_INGRESS.md): Cloudflare Tunnel integration, WireGuard overlay, and firewall policies.
-- [**Storage Strategy**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/STORAGE_STRATEGY.md): PostgreSQL 18 database partitioning, S3 object storage, and ephemeral local paths.
-- [**Application Specification for AI Agents**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/APP_SPEC_FOR_AGENTS.md): Golden prompt guide for coding agents to generate NAS-ready application manifests.
-- [**Automated Updates & GitOps**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/AUTOMATED_UPDATES_AND_GITOPS.md): Pull-based self-reconciliation, systemd sync timer, and GitHub Actions CI.
+For detailed architectural justifications, complete configurations, and operational workflows, explore each topic guide:
 
+### Application & Deployment Guides
+- [**`docs/APP_SPEC_FOR_AGENTS.md`**](docs/APP_SPEC_FOR_AGENTS.md) — **AI Agent Application Specification (Recommended)**  
+  The golden standard system prompt and reference manifest for AI coding agents to create clean, single-file `app.yaml` bundles ready to save onto your encrypted NAS and stream to the cluster.
+- [**`docs/SECRET_MANAGEMENT_AND_NAS.md`**](docs/SECRET_MANAGEMENT_AND_NAS.md) — **Secret Management & NAS Workflows (Recommended)**  
+  In-depth explanation of zero-disk-footprint secrets, in-memory SSH streaming (`deploy-from-nas.sh`), direct PostgreSQL TLS storage, and the Mozilla SOPS + Age encrypted GitOps alternative.
+- [**`docs/APP_MANAGEMENT_AND_DASHBOARD.md`**](docs/APP_MANAGEMENT_AND_DASHBOARD.md) — **Application Lifecycle & Dashboard (Recommended)**  
+  Details the 3 application workflows (NAS deployment, Headlamp UI, CLI scaffolder), dynamic wildcard HTTP routing via Cloudflare Tunnels, and instant fleet rebuilds.
 
-
-
-
-
+### Reliability & Infrastructure Guides
+- [**`docs/DISASTER_RECOVERY.md`**](docs/DISASTER_RECOVERY.md) — **Disaster Recovery & Node Rebuilds (Recommended Runbook)**  
+  Step-by-step incident response runbooks to wipe and rebuild compromised worker nodes, recover from control-plane losses, or re-provision the entire cluster in under 5 minutes.
+- [**`docs/STORAGE_STRATEGY.md`**](docs/STORAGE_STRATEGY.md) — **Storage Strategy & Stateless Cattle (Recommended Pattern)**  
+  Detailed rationale for the 3-tier storage architecture: Managed DigitalOcean PostgreSQL 18 for relational data, Cloudflare R2 / S3 for media and files, and ephemeral local caching.
+- [**`docs/ARCHITECTURE.md`**](docs/ARCHITECTURE.md) — **Architecture & Security Blueprint (Reference)**  
+  Complete threat modeling, defense-in-depth principles, Swarm vs K3s comparison, breach isolation, and external Kine PostgreSQL datastore mechanics.
+- [**`docs/NETWORKING_AND_INGRESS.md`**](docs/NETWORKING_AND_INGRESS.md) — **Networking & Ingress Guide (Reference)**  
+  Comprehensive network blueprint: zero inbound open ports on host VPS, Cloudflare Tunnel wildcard ingress, Traefik routing, WireGuard mesh, and strict UFW policies.
+- [**`docs/AUTOMATED_UPDATES_AND_GITOPS.md`**](docs/AUTOMATED_UPDATES_AND_GITOPS.md) — **Automated Updates & GitOps Loop (Reference)**  
+  Pull-based self-healing systemd timer (`cluster-sync.timer`), automatic repository reconciliation every 30 minutes, GitHub Actions CI validation, and Dependabot security updates.
 
 ---
 
