@@ -9,11 +9,21 @@ set -euo pipefail
 REPO_URL="https://github.com/Lyttle-Development/Cluster.git"
 INSTALL_DIR="/opt/cluster"
 
-# Check root
+# If --target is specified, delegate to remote provision-node.sh
+for arg in "$@"; do
+    if [[ "${arg}" == "--target" ]]; then
+        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || true)"
+        exec "${SCRIPT_DIR}/provision-node.sh" "$@"
+    fi
+done
+
+# Check root (only required when running locally on the VPS)
 if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
-    echo "[ERROR] This script must be run as root (use sudo)." >&2
+    echo "[ERROR] When running directly on a node, this script must be run as root (use sudo)." >&2
+    echo "        To provision a remote VPS from your developer PC, use: $0 --target <vps-ip>" >&2
     exit 1
 fi
+
 
 # Ensure git and curl are available if piped
 if ! command -v git &> /dev/null || ! command -v curl &> /dev/null; then
@@ -56,8 +66,10 @@ usage() {
 Usage: $0 [options]
 
 Options:
+  --target <host/ip>               Remote VPS IP to provision from Developer PC over SSH
   --role [server|agent]            Node role (server = control plane, agent = worker)
   --datastore-endpoint <url>       PostgreSQL 18 connection string (required for server)
+
   --server-url <url>               Control-plane URL e.g. https://1.2.3.4:6443 (required for agent)
   --token <token>                  Cluster join token (auto-generated if omitted on server)
   --cf-token <token>               Cloudflare Tunnel token (optional for server)

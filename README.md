@@ -25,14 +25,39 @@ This repository is built to replace fragile Docker Swarm / Portainer setups with
 
 ---
 
-## ⚡ Quickstart: One-Liner Commands
+## ⚡ Quickstart: Provisioning Workflows
 
-> [!TIP]
-> The primary installation commands below use **`https://install.cluster.lyttle.dev`**.  
-> To set up this domain on your Cloudflare account, see the [Cloudflare Configuration Guide](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/CLOUDFLARE_SETUP.md).  
-> *(The direct GitHub URL `raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh` also works as a direct fallback).*
+You can provision nodes in two ways:
+1. **From your Developer PC (Recommended)**: Automatically connects over SSH, orchestrates hardening, handles reboots smoothly, migrates users, and downloads `kubeconfig` to your workstation.
+2. **Direct One-Liner on the VPS**: Paste directly into a VPS terminal.
 
-### 1. Provision a Server Node (Control Plane)
+---
+
+### Method A: Remote Provisioning from Developer PC (Recommended)
+
+#### Provision Server Node (Control Plane):
+> 📍 **Run on: Developer PC / Workstation**
+```bash
+./scripts/bootstrap.sh --target <VPS_IP> --role server \
+  --datastore-endpoint "postgres://k3s_user:SECRET@your-do-db:25060/k3s_cluster?sslmode=require" \
+  --cf-token "YOUR_CLOUDFLARE_TUNNEL_TOKEN" \
+  --reboot
+```
+*(Handles system reboots, verifies new `server` SSH user, locks `debian`, and downloads `~/.kube/config-cluster-<IP>` and Headlamp token to your Mac).*
+
+#### Provision Worker / Agent Node:
+> 📍 **Run on: Developer PC / Workstation**
+```bash
+./scripts/bootstrap.sh --target <WORKER_VPS_IP> --role agent \
+  --server-url "https://<SERVER_IP>:6443" \
+  --token "<CLUSTER_NODE_TOKEN>"
+```
+
+---
+
+### Method B: Direct One-Liner on Target VPS
+
+#### 1. Provision Server Node directly on host:
 > 📍 **Run on: Fresh Server VPS** (via SSH or OVH console as `root` / `sudo`)
 ```bash
 curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
@@ -41,7 +66,7 @@ curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
   --cf-token "YOUR_CLOUDFLARE_TUNNEL_TOKEN"
 ```
 
-### 2. Provision an Agent Node (Worker)
+#### 2. Provision Worker Node directly on host:
 > 📍 **Run on: Additional Worker VPS** (via SSH or OVH console as `root` / `sudo`)
 ```bash
 curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
@@ -50,11 +75,12 @@ curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
   --token "<CLUSTER_NODE_TOKEN>"
 ```
 
-### 3. Reset / Decontaminate a Node
+#### 3. Reset / Decontaminate a Node:
 > 📍 **Run on: Target VPS Node to Wipe** (via SSH or OVH console as `root` / `sudo`)
 ```bash
 curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- --reset
 ```
+
 
 ---
 
@@ -126,7 +152,9 @@ Instead of a monolithic black-box, each step is an independent script inside [`s
 | [`scripts/deploy-from-nas.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/deploy-from-nas.sh) | Streams private NAS manifests/secrets directly into Kubernetes RAM (zero disk trace on VPS). |
 | [`scripts/get-dashboard-token.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/get-dashboard-token.sh) | Generates admin authentication token for the Headlamp web dashboard. |
 | [`scripts/99-reset-node.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/99-reset-node.sh) | Complete node wipe: uninstalls K3s, unmounts container storage, removes virtual interfaces, resets firewall safely. |
-| [`scripts/bootstrap.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/bootstrap.sh) | Unified master orchestrator supporting both CLI flags and interactive prompts. |
+| [`scripts/provision-node.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/provision-node.sh) | Orchestrates remote VPS setup from Developer PC over SSH: handles reboots, user migration, and kubeconfig sync. |
+| [`scripts/bootstrap.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/bootstrap.sh) | Unified master orchestrator supporting both local host runs and `--target <vps-ip>` remote runs. |
+
 
 ---
 
