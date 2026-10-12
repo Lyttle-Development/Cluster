@@ -110,11 +110,13 @@ Instead of a monolithic black-box, each step is an independent script inside [`s
 | [`scripts/04-install-k3s-agent.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/04-install-k3s-agent.sh) | Joins worker node to the K3s cluster. |
 | [`scripts/05-deploy-cloudflared.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/05-deploy-cloudflared.sh) | Deploys Cloudflare Tunnel agent inside cluster (least-privilege non-root container with read-only rootfs). |
 | [`scripts/06-deploy-dashboard.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/06-deploy-dashboard.sh) | Deploys Headlamp web dashboard, generates token, and saves it to `/etc/headlamp-admin-token.txt`. |
+| [`scripts/07-setup-auto-sync.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/07-setup-auto-sync.sh) | Installs systemd timer and service to run `sync-node.sh` periodically (default: 30 min). |
+| [`scripts/sync-node.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/sync-node.sh) | Pulls Git updates, reconciles applications, and reapplies firewall/sysctl baseline. |
 | [`scripts/deploy-app.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/deploy-app.sh) | Fast interactive/CLI container deployer: configures image, envs, domain, and Traefik ingress in `apps/`. |
-
 | [`scripts/get-dashboard-token.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/get-dashboard-token.sh) | Generates admin authentication token for the Headlamp web dashboard. |
 | [`scripts/99-reset-node.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/99-reset-node.sh) | Complete node wipe: uninstalls K3s, unmounts container storage, removes virtual interfaces, resets firewall safely. |
 | [`scripts/bootstrap.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/bootstrap.sh) | Unified master orchestrator supporting both CLI flags and interactive prompts. |
+
 
 ---
 
@@ -149,6 +151,8 @@ This immediately loads:
 - [**Networking & Ingress Guide**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/NETWORKING_AND_INGRESS.md): Cloudflare Tunnel integration, WireGuard overlay, and firewall policies.
 - [**Storage Strategy**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/STORAGE_STRATEGY.md): PostgreSQL 18 database partitioning, S3 object storage, and ephemeral local paths.
 - [**Cloudflare DNS & Routing Setup**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/CLOUDFLARE_SETUP.md): DNS records, redirect rules, and Worker code for `install.cluster.lyttle.dev`.
+- [**Automated Updates & GitOps**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/AUTOMATED_UPDATES_AND_GITOPS.md): Pull-based self-reconciliation, systemd sync timer, and GitHub Actions CI.
+
 
 
 
