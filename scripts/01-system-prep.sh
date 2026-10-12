@@ -115,4 +115,69 @@ port = ssh
 EOF
 systemctl enable --now fail2ban || true
 
-success "Step 01 completed: System prepared, kernel hardened, and security services active."
+# 8. User Management & SSH Hardening
+ADMIN_USER="${ADMIN_USER:-server}"
+LOCK_DEFAULT_USER="${LOCK_DEFAULT_USER:-true}"
+
+if [[ -n "${ADMIN_USER}" && "${ADMIN_USER}" != "root" ]]; then
+    if ! id "${ADMIN_USER}" &>/dev/null; then
+        info "Creating administrative user: ${ADMIN_USER}..."
+        useradd -m -s /bin/bash -G sudo "${ADMIN_USER}"
+    else
+        info "Administrative user ${ADMIN_USER} already exists."
+        usermod -aG sudo "${ADMIN_USER}" || true
+    fi
+
+    # Set up passwordless sudo for the admin user
+    echo "${ADMIN_USER} ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/99-${ADMIN_USER}"
+    chmod 440 "/etc/sudoers.d/99-${ADMIN_USER}"
+
+    # Migrate SSH keys from default debian or root account
+    ADMIN_SSH_DIR="/home/${ADMIN_USER}/.ssh"
+    mkdir -p "${ADMIN_SSH_DIR}"
+    chmod 700 "${ADMIN_SSH_DIR}"
+
+    SOURCE_KEYS=""
+    if [[ -f /home/debian/.ssh/authorized_keys ]]; then
+        SOURCE_KEYS="/home/debian/.ssh/authorized_keys"
+    elif [[ -n "${SUDO_USER:-}" && -f "/home/${SUDO_USER}/.ssh/authorized_keys" ]]; then
+        SOURCE_KEYS="/home/${SUDO_USER}/.ssh/authorized_keys"
+    elif [[ -f /root/.ssh/authorized_keys ]]; then
+        SOURCE_KEYS="/root/.ssh/authorized_keys"
+    fi
+
+    if [[ -n "${SOURCE_KEYS}" && -f "${SOURCE_KEYS}" ]]; then
+        info "Migrating authorized SSH keys from ${SOURCE_KEYS} to ${ADMIN_USER}..."
+        cp "${SOURCE_KEYS}" "${ADMIN_SSH_DIR}/authorized_keys"
+        chmod 600 "${ADMIN_SSH_DIR}/authorized_keys"
+        chown -R "${ADMIN_USER}:${ADMIN_USER}" "${ADMIN_SSH_DIR}"
+        success "SSH key installed for user '${ADMIN_USER}'."
+    else
+        warn "No existing authorized_keys found to copy for user '${ADMIN_USER}'."
+    fi
+
+    # Lock password on default debian user if requested
+    if [[ "${LOCK_DEFAULT_USER}" == "true" && "${ADMIN_USER}" != "debian" ]] && id debian &>/dev/null; then
+        info "Locking password authentication on default 'debian' user..."
+        passwd -l debian || true
+    fi
+fi
+
+# Enforce SSH daemon security settings
+info "Hardening SSH daemon configuration..."
+mkdir -p /etc/ssh/sshd_config.d
+cat <<EOF > /etc/ssh/sshd_config.d/99-hardened.conf
+# Enforce public key authentication only
+PasswordAuthentication no
+PubkeyAuthentication yes
+KbdInteractiveAuthentication no
+PermitEmptyPasswords no
+X11Forwarding no
+MaxAuthTries 4
+EOF
+
+# Reload SSH service safely without dropping active sessions
+systemctl reload ssh || systemctl reload sshd || systemctl restart ssh || systemctl restart sshd || true
+
+success "Step 01 completed: System prepared, kernel hardened, user '${ADMIN_USER}' active, and SSH secured."
+

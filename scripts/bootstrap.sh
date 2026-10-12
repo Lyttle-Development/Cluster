@@ -45,6 +45,8 @@ DATASTORE_ENDPOINT="${DATASTORE_ENDPOINT:-}"
 SERVER_URL="${SERVER_URL:-}"
 TOKEN="${K3S_TOKEN:-${TOKEN:-}}"
 CF_TOKEN="${CLOUDFLARE_TUNNEL_TOKEN:-${CF_TOKEN:-}}"
+ADMIN_USER="${ADMIN_USER:-server}"
+LOCK_DEFAULT_USER="${LOCK_DEFAULT_USER:-true}"
 SSH_PORT="${SSH_PORT:-22}"
 DO_RESET=false
 
@@ -58,9 +60,12 @@ Options:
   --server-url <url>               Control-plane URL e.g. https://1.2.3.4:6443 (required for agent)
   --token <token>                  Cluster join token (auto-generated if omitted on server)
   --cf-token <token>               Cloudflare Tunnel token (optional for server)
+  --admin-user <name>              Admin user to create/configure with SSH keys (default: server)
+  --lock-default-user <bool>       Lock password on default 'debian' user (default: true)
   --ssh-port <port>                SSH port to allow in UFW (default: 22)
   --reset                          Reset and uninstall cluster software on this node
   -h, --help                       Show this help message
+
 
 Examples:
   # Install Server Node:
@@ -98,6 +103,14 @@ while [[ $# -gt 0 ]]; do
             CF_TOKEN="$2"
             shift 2
             ;;
+        --admin-user)
+            ADMIN_USER="$2"
+            shift 2
+            ;;
+        --lock-default-user)
+            LOCK_DEFAULT_USER="$2"
+            shift 2
+            ;;
         --ssh-port)
             SSH_PORT="$2"
             shift 2
@@ -106,6 +119,7 @@ while [[ $# -gt 0 ]]; do
             DO_RESET=true
             shift
             ;;
+
         -h|--help)
             usage
             ;;
@@ -165,6 +179,9 @@ if [[ "${ROLE}" == "agent" ]]; then
 fi
 
 export SSH_PORT="${SSH_PORT}"
+export ADMIN_USER="${ADMIN_USER}"
+export LOCK_DEFAULT_USER="${LOCK_DEFAULT_USER}"
+
 
 # ==============================================================================
 # Execution Pipeline

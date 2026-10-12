@@ -67,18 +67,23 @@ if ! systemctl is-active --quiet k3s; then
     fatal "K3s failed to start. Check 'journalctl -u k3s -n 50' for details."
 fi
 
-# 5. Set up kubeconfig for root and current sudo user
+# 5. Set up kubeconfig for root, sudo user, and admin user
 mkdir -p /root/.kube
 cp /etc/rancher/k3s/k3s.yaml /root/.kube/config
 chmod 600 /root/.kube/config
 
-if [[ -n "${SUDO_USER:-}" && "${SUDO_USER}" != "root" ]]; then
-    USER_HOME="$(getent passwd "${SUDO_USER}" | cut -d: -f6)"
-    mkdir -p "${USER_HOME}/.kube"
-    cp /etc/rancher/k3s/k3s.yaml "${USER_HOME}/.kube/config"
-    chown -R "${SUDO_USER}:${SUDO_USER}" "${USER_HOME}/.kube"
-    chmod 600 "${USER_HOME}/.kube/config"
-fi
+ADMIN_USER="${ADMIN_USER:-server}"
+for target_user in "${SUDO_USER:-}" "${ADMIN_USER}"; do
+    if [[ -n "${target_user}" && "${target_user}" != "root" ]] && id "${target_user}" &>/dev/null; then
+        USER_HOME="$(getent passwd "${target_user}" | cut -d: -f6)"
+        mkdir -p "${USER_HOME}/.kube"
+        cp /etc/rancher/k3s/k3s.yaml "${USER_HOME}/.kube/config"
+        chown -R "${target_user}:${target_user}" "${USER_HOME}/.kube"
+        chmod 600 "${USER_HOME}/.kube/config"
+        info "Kubeconfig configured for user '${target_user}' at ${USER_HOME}/.kube/config"
+    fi
+done
+
 
 # 6. Wait for node to be Ready
 info "Waiting for node to report Ready state..."
