@@ -56,6 +56,45 @@ To cleanly remove K3s, container storage, and network interfaces back to baselin
 curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- --reset
 ```
 
+---
+
+## 🚢 Application & Container Management
+
+Deploying containers, mapping domains, and injecting environment variables is designed to be fast and safe.
+
+### 1. Fast CLI Deployer (`./scripts/deploy-app.sh`)
+Deploy a container with coupled domain and environment variables in seconds:
+```bash
+./scripts/deploy-app.sh \
+  --name my-service \
+  --image nginx:alpine \
+  --domain my-service.cluster.lyttle.dev \
+  --port 80 \
+  --env NODE_ENV=production
+```
+- Automatically generates declarative Kubernetes manifests in `apps/<name>/app.yaml`.
+- Registers the application in `apps/kustomization.yaml`.
+- Traefik automatically routes `https://my-service.cluster.lyttle.dev` through your Cloudflare wildcard tunnel.
+
+### 2. Visual Web Dashboard (Headlamp)
+Replace Portainer with a **stateless, modern Kubernetes dashboard**:
+```bash
+# Deploy Headlamp dashboard
+kubectl apply -f manifests/dashboard/headlamp.yaml
+
+# Get your admin login token
+./scripts/get-dashboard-token.sh
+```
+- Open `https://dashboard.cluster.lyttle.dev` and log in with your token.
+- Inspect container metrics, stream logs, open in-container terminals, and restart pods.
+
+### 3. Instant Fleet Rebuild (All Containers & Routes in 10 Seconds)
+If you reset or rebuild your cluster, restore your entire application fleet with one command:
+```bash
+kubectl apply -k apps/
+```
+
+
 
 ---
 
@@ -70,6 +109,8 @@ Instead of a monolithic black-box, each step is an independent script inside [`s
 | [`scripts/03-install-k3s-server.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/03-install-k3s-server.sh) | K3s control-plane with external PostgreSQL datastore (Kine), native WireGuard flannel, and generated credentials. |
 | [`scripts/04-install-k3s-agent.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/04-install-k3s-agent.sh) | Joins worker node to the K3s cluster. |
 | [`scripts/05-deploy-cloudflared.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/05-deploy-cloudflared.sh) | Deploys Cloudflare Tunnel agent inside cluster (least-privilege non-root container with read-only rootfs). |
+| [`scripts/deploy-app.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/deploy-app.sh) | Fast interactive/CLI container deployer: configures image, envs, domain, and Traefik ingress in `apps/`. |
+| [`scripts/get-dashboard-token.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/get-dashboard-token.sh) | Generates admin authentication token for the Headlamp web dashboard. |
 | [`scripts/99-reset-node.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/99-reset-node.sh) | Complete node wipe: uninstalls K3s, unmounts container storage, removes virtual interfaces, resets firewall safely. |
 | [`scripts/bootstrap.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/bootstrap.sh) | Unified master orchestrator supporting both CLI flags and interactive prompts. |
 
@@ -100,11 +141,13 @@ This immediately loads:
 
 ## 📚 Documentation Deep Dives
 
+- [**Application Management & Dashboard**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/APP_MANAGEMENT_AND_DASHBOARD.md): Rapid container deployment, wildcard HTTP routing, and Headlamp dashboard.
 - [**Architecture & Security Blueprint**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/ARCHITECTURE.md): Threat model, defense-in-depth, and control plane decoupling.
 - [**Disaster Recovery Runbook**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/DISASTER_RECOVERY.md): Rapid response guides for node compromise, server rebuilds, and total fleet recovery.
 - [**Networking & Ingress Guide**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/NETWORKING_AND_INGRESS.md): Cloudflare Tunnel integration, WireGuard overlay, and firewall policies.
 - [**Storage Strategy**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/STORAGE_STRATEGY.md): PostgreSQL 18 database partitioning, S3 object storage, and ephemeral local paths.
 - [**Cloudflare DNS & Routing Setup**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/CLOUDFLARE_SETUP.md): DNS records, redirect rules, and Worker code for `install.cluster.lyttle.dev`.
+
 
 
 ---
