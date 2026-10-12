@@ -1,0 +1,22 @@
+# Secrets & local configuration
+.env
+/etc/cluster-node.env
+*.key
+*.pem
+*.cert
+*.crt
+
+# Kubeconfig & local cluster state
+.kube/
+*.kubeconfig
+
+# System & editor artifacts
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Temporary logs
+*.log
