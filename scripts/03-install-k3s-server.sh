@@ -6,7 +6,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=./common.sh
+# shellcheck source=scripts/common.sh
 source "${SCRIPT_DIR}/common.sh"
 
 check_root
@@ -56,7 +56,7 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server" sh -s -
 
 # 4. Wait for K3s systemd service
 info "Waiting for K3s service to reach active state..."
-for i in {1..30}; do
+for _ in {1..30}; do
     if systemctl is-active --quiet k3s; then
         break
     fi
@@ -87,7 +87,7 @@ done
 
 # 6. Wait for node to be Ready
 info "Waiting for node to report Ready state..."
-for i in {1..30}; do
+for _ in {1..30}; do
     if kubectl get nodes | grep -q "Ready"; then
         break
     fi

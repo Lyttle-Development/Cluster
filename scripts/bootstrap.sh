@@ -12,7 +12,7 @@ INSTALL_DIR="/opt/cluster"
 # If --target is specified, delegate to remote provision-node.sh
 for arg in "$@"; do
     if [[ "${arg}" == "--target" ]]; then
-        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || true)"
+        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd)" || SCRIPT_DIR="."
         exec "${SCRIPT_DIR}/provision-node.sh" "$@"
     fi
 done
@@ -33,7 +33,7 @@ if ! command -v git &> /dev/null || ! command -v curl &> /dev/null; then
 fi
 
 # Determine script location or clone if running from pipe
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || true)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd)" || SCRIPT_DIR="."
 
 if [[ ! -f "${SCRIPT_DIR}/common.sh" ]]; then
     echo "[INFO] Running via remote pipe. Cloning repository to ${INSTALL_DIR}..."
@@ -46,7 +46,7 @@ if [[ ! -f "${SCRIPT_DIR}/common.sh" ]]; then
     SCRIPT_DIR="${INSTALL_DIR}/scripts"
 fi
 
-# shellcheck source=./common.sh
+# shellcheck source=scripts/common.sh
 source "${SCRIPT_DIR}/common.sh"
 
 # Default variables

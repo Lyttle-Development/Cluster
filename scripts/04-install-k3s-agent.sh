@@ -6,7 +6,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=./common.sh
+# shellcheck source=scripts/common.sh
 source "${SCRIPT_DIR}/common.sh"
 
 check_root
@@ -47,7 +47,7 @@ curl -sfL https://get.k3s.io | K3S_URL="${K3S_SERVER_URL}" K3S_TOKEN="${K3S_TOKE
 
 # 4. Wait for k3s-agent systemd service
 info "Waiting for k3s-agent service to reach active state..."
-for i in {1..30}; do
+for _ in {1..30}; do
     if systemctl is-active --quiet k3s-agent; then
         break
     fi

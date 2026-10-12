@@ -6,7 +6,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=./common.sh
+# shellcheck source=scripts/common.sh
 source "${SCRIPT_DIR}/common.sh"
 
 SOURCE_PATH=""
@@ -133,9 +133,8 @@ if [[ -d "${SOURCE_PATH}" ]]; then
     ) | ssh -p "${SSH_PORT}" "${SSH_USER}@${SERVER_HOST}" 'sudo /usr/local/bin/kubectl apply -f -'
 else
     # Stream single file directly
-    cat "${SOURCE_PATH}" | \
-        ssh -p "${SSH_PORT}" "${SSH_USER}@${SERVER_HOST}" \
-        'sudo /usr/local/bin/kubectl apply -f -'
+    ssh -p "${SSH_PORT}" "${SSH_USER}@${SERVER_HOST}" \
+        'sudo /usr/local/bin/kubectl apply -f -' < "${SOURCE_PATH}"
 fi
 
 

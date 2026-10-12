@@ -6,11 +6,17 @@
 set -euo pipefail
 
 # Colors for terminal output
+# shellcheck disable=SC2034
 RED='\033[0;31m'
+# shellcheck disable=SC2034
 GREEN='\033[0;32m'
+# shellcheck disable=SC2034
 YELLOW='\033[1;33m'
+# shellcheck disable=SC2034
 BLUE='\033[0;34m'
+# shellcheck disable=SC2034
 CYAN='\033[0;36m'
+# shellcheck disable=SC2034
 NC='\033[0m' # No Color
 
 info() {
@@ -62,8 +68,8 @@ load_env() {
     local env_file="${1:-/etc/cluster-node.env}"
     if [[ -f "${env_file}" ]]; then
         info "Loading configuration from ${env_file}..."
-        # shellcheck source=/dev/null
         set -a
+        # shellcheck source=/dev/null
         source "${env_file}"
         set +a
     fi

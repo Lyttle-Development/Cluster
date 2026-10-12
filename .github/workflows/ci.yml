@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install shellcheck
         run: sudo apt-get update -y && sudo apt-get install -y shellcheck
@@ -26,17 +26,17 @@ jobs:
 
       - name: Run shellcheck
         run: |
-          shellcheck -x scripts/*.sh
+          shellcheck -x -P scripts/ scripts/*.sh
 
   validate-manifests:
     name: Validate Kubernetes Manifests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Kustomize
-        uses: imranismail/setup-kustomize@v2
+        uses: imranismail/setup-kustomize@v3
 
       - name: Build and Validate apps/ Kustomization
         run: |

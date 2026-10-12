@@ -6,7 +6,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=./common.sh
+# shellcheck source=scripts/common.sh
 source "${SCRIPT_DIR}/common.sh"
 
 check_root
@@ -136,7 +136,7 @@ kubectl rollout status deployment/headlamp -n headlamp --timeout=60s || true
 # Fetch or generate the authentication token
 info "Retrieving Headlamp admin token..."
 TOKEN=""
-for i in {1..10}; do
+for _ in {1..10}; do
     if kubectl get secret headlamp-admin-token -n headlamp &>/dev/null; then
         TOKEN="$(kubectl get secret headlamp-admin-token -n headlamp -o jsonpath='{.data.token}' | base64 -d 2>/dev/null || true)"
         if [[ -n "${TOKEN}" ]]; then
