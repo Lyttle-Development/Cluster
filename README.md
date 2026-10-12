@@ -192,7 +192,9 @@ This immediately loads:
 - [**Disaster Recovery Runbook**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/DISASTER_RECOVERY.md): Rapid response guides for node compromise, server rebuilds, and total fleet recovery.
 - [**Networking & Ingress Guide**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/NETWORKING_AND_INGRESS.md): Cloudflare Tunnel integration, WireGuard overlay, and firewall policies.
 - [**Storage Strategy**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/STORAGE_STRATEGY.md): PostgreSQL 18 database partitioning, S3 object storage, and ephemeral local paths.
+- [**Application Specification for AI Agents**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/APP_SPEC_FOR_AGENTS.md): Golden prompt guide for coding agents to generate NAS-ready application manifests.
 - [**Automated Updates & GitOps**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/AUTOMATED_UPDATES_AND_GITOPS.md): Pull-based self-reconciliation, systemd sync timer, and GitHub Actions CI.
+
 
 
 
