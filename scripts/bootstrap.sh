@@ -47,6 +47,7 @@ TOKEN="${K3S_TOKEN:-${TOKEN:-}}"
 CF_TOKEN="${CLOUDFLARE_TUNNEL_TOKEN:-${CF_TOKEN:-}}"
 ADMIN_USER="${ADMIN_USER:-server}"
 LOCK_DEFAULT_USER="${LOCK_DEFAULT_USER:-true}"
+INSTALL_DASHBOARD="${INSTALL_DASHBOARD:-true}"
 SSH_PORT="${SSH_PORT:-22}"
 DO_RESET=false
 
@@ -60,11 +61,13 @@ Options:
   --server-url <url>               Control-plane URL e.g. https://1.2.3.4:6443 (required for agent)
   --token <token>                  Cluster join token (auto-generated if omitted on server)
   --cf-token <token>               Cloudflare Tunnel token (optional for server)
+  --dashboard <bool>               Deploy Headlamp web dashboard (default: true)
   --admin-user <name>              Admin user to create/configure with SSH keys (default: server)
   --lock-default-user <bool>       Lock password on default 'debian' user (default: true)
   --ssh-port <port>                SSH port to allow in UFW (default: 22)
   --reset                          Reset and uninstall cluster software on this node
   -h, --help                       Show this help message
+
 
 
 Examples:
@@ -106,10 +109,15 @@ while [[ $# -gt 0 ]]; do
             CF_TOKEN="$2"
             shift 2
             ;;
+        --dashboard)
+            INSTALL_DASHBOARD="$2"
+            shift 2
+            ;;
         --admin-user)
             ADMIN_USER="$2"
             shift 2
             ;;
+
         --lock-default-user)
             LOCK_DEFAULT_USER="$2"
             shift 2
@@ -206,7 +214,12 @@ if [[ "${ROLE}" == "server" ]]; then
     if [[ -n "${CF_TOKEN}" ]]; then
         bash "${SCRIPT_DIR}/05-deploy-cloudflared.sh"
     fi
+    # Step 06: Headlamp Web Dashboard (if enabled)
+    if [[ "${INSTALL_DASHBOARD}" == "true" ]]; then
+        bash "${SCRIPT_DIR}/06-deploy-dashboard.sh"
+    fi
 elif [[ "${ROLE}" == "agent" ]]; then
+
     bash "${SCRIPT_DIR}/04-install-k3s-agent.sh"
 fi
 

@@ -109,7 +109,9 @@ Instead of a monolithic black-box, each step is an independent script inside [`s
 | [`scripts/03-install-k3s-server.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/03-install-k3s-server.sh) | K3s control-plane with external PostgreSQL datastore (Kine), native WireGuard flannel, and generated credentials. |
 | [`scripts/04-install-k3s-agent.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/04-install-k3s-agent.sh) | Joins worker node to the K3s cluster. |
 | [`scripts/05-deploy-cloudflared.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/05-deploy-cloudflared.sh) | Deploys Cloudflare Tunnel agent inside cluster (least-privilege non-root container with read-only rootfs). |
+| [`scripts/06-deploy-dashboard.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/06-deploy-dashboard.sh) | Deploys Headlamp web dashboard, generates token, and saves it to `/etc/headlamp-admin-token.txt`. |
 | [`scripts/deploy-app.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/deploy-app.sh) | Fast interactive/CLI container deployer: configures image, envs, domain, and Traefik ingress in `apps/`. |
+
 | [`scripts/get-dashboard-token.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/get-dashboard-token.sh) | Generates admin authentication token for the Headlamp web dashboard. |
 | [`scripts/99-reset-node.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/99-reset-node.sh) | Complete node wipe: uninstalls K3s, unmounts container storage, removes virtual interfaces, resets firewall safely. |
 | [`scripts/bootstrap.sh`](file:///Users/kiliandebock/Documents/GitHub/Cluster/scripts/bootstrap.sh) | Unified master orchestrator supporting both CLI flags and interactive prompts. |

@@ -56,7 +56,10 @@ rm -rf /etc/rancher \
        /var/lib/cni \
        /etc/cni \
        /etc/cluster-node.env \
+       /etc/headlamp-admin-token.txt \
        /root/.kube
+rm -f /home/*/headlamp-token.txt || true
+
 
 # 5. Clean up virtual network interfaces
 info "Removing container virtual network interfaces..."
