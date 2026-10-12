@@ -123,3 +123,8 @@ This document details the architectural decisions, threat model, security postur
    - Ignore bogus ICMP responses.
 4. **Automated Security Updates**:
    - `unattended-upgrades` enabled for Debian security channels.
+5. **User Management & Default Provider Account Hardening**:
+   - Cloud providers (OVH) provision images with predictable default accounts (e.g. `debian`). Automated bots continuously target these known names.
+   - The provisioning scripts automatically establish a custom administrative account (default: `server`), migrate authorized SSH keys, and grant passwordless `sudo`.
+   - The default `debian` account password is locked (`passwd -l debian`), eliminating credential brute-forcing against standard provider usernames.
+
