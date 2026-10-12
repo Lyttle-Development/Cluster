@@ -68,16 +68,19 @@ Options:
 
 
 Examples:
-  # Install Server Node:
-  sudo $0 --role server --datastore-endpoint "postgres://user:pass@host:25060/db?sslmode=require"
+  # One-Liner Install Server Node:
+  curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \\
+    --role server --datastore-endpoint "postgres://user:pass@host:25060/db?sslmode=require"
 
-  # Install Agent Node:
-  sudo $0 --role agent --server-url "https://10.0.0.1:6443" --token "mysecrettoken"
+  # One-Liner Install Agent Node:
+  curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \\
+    --role agent --server-url "https://10.0.0.1:6443" --token "mysecrettoken"
 
-  # Reset Node:
-  sudo $0 --reset
+  # One-Liner Reset Node:
+  curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- --reset
 EOF
     exit 0
+
 }
 
 # Parse CLI arguments

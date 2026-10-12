@@ -27,10 +27,15 @@ This repository is built to replace fragile Docker Swarm / Portainer setups with
 
 ## ⚡ Quickstart: One-Liner Commands
 
+> [!TIP]
+> The primary installation commands below use **`https://install.cluster.lyttle.dev`**.  
+> To set up this domain on your Cloudflare account, see the [Cloudflare Configuration Guide](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/CLOUDFLARE_SETUP.md).  
+> *(The direct GitHub URL `raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh` also works as a direct fallback).*
+
 ### 1. Provision a Server Node (Control Plane)
 Run on a fresh Debian 13 VPS:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- \
+curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
   --role server \
   --datastore-endpoint "postgres://k3s_user:SECRET_PASSWORD@db-do-host:25060/k3s_cluster?sslmode=require" \
   --cf-token "YOUR_CLOUDFLARE_TUNNEL_TOKEN"
@@ -39,7 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scr
 ### 2. Provision an Agent Node (Worker)
 Run on any additional Debian 13 VPS to expand compute capacity:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- \
+curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- \
   --role agent \
   --server-url "https://<SERVER_IP>:6443" \
   --token "<CLUSTER_NODE_TOKEN>"
@@ -48,8 +53,9 @@ curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scr
 ### 3. Reset / Decontaminate a Node
 To cleanly remove K3s, container storage, and network interfaces back to baseline:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Lyttle-Development/Cluster/main/scripts/bootstrap.sh | sudo bash -s -- --reset
+curl -fsSL https://install.cluster.lyttle.dev | sudo bash -s -- --reset
 ```
+
 
 ---
 
@@ -98,6 +104,8 @@ This immediately loads:
 - [**Disaster Recovery Runbook**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/DISASTER_RECOVERY.md): Rapid response guides for node compromise, server rebuilds, and total fleet recovery.
 - [**Networking & Ingress Guide**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/NETWORKING_AND_INGRESS.md): Cloudflare Tunnel integration, WireGuard overlay, and firewall policies.
 - [**Storage Strategy**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/STORAGE_STRATEGY.md): PostgreSQL 18 database partitioning, S3 object storage, and ephemeral local paths.
+- [**Cloudflare DNS & Routing Setup**](file:///Users/kiliandebock/Documents/GitHub/Cluster/docs/CLOUDFLARE_SETUP.md): DNS records, redirect rules, and Worker code for `install.cluster.lyttle.dev`.
+
 
 ---
 
